@@ -1,23 +1,125 @@
-# Environment variables and secrets
+# ==================================================
+# AI Bus Travel Assistant - Root .gitignore
+# ==================================================
+
+
+# --------------------------------------------------
+# Environment Variables and Secrets
+# --------------------------------------------------
+
 .env
 .env.*
+!.env.example
 
-# Python virtual environments
+
+# --------------------------------------------------
+# Python Virtual Environments
+# --------------------------------------------------
+
 backend/venv/
 venv/
 .venv/
 
-# Python cache files
+
+# --------------------------------------------------
+# Python Cache and Compiled Files
+# --------------------------------------------------
+
 __pycache__/
 *.py[cod]
+*$py.class
 
-# macOS files
-.DS_Store
 
-# Frontend dependencies and build output
+# --------------------------------------------------
+# Python Testing and Tool Cache
+# --------------------------------------------------
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+
+# --------------------------------------------------
+# Python Build and Package Files
+# --------------------------------------------------
+
+build/
+dist/
+*.egg-info/
+
+
+# --------------------------------------------------
+# Raw VIA GTFS Transit Data
+#
+# The GTFS dataset is downloaded locally and is not
+# stored in Git because the data can change over time.
+# --------------------------------------------------
+
+data/via_gtfs/
+data/via_gtfs.zip
+
+
+# --------------------------------------------------
+# Frontend Dependencies
+# --------------------------------------------------
+
 frontend/node_modules/
+node_modules/
+
+
+# --------------------------------------------------
+# Frontend Build Output
+# --------------------------------------------------
+
 frontend/dist/
 
-# IDE/editor files
+
+# --------------------------------------------------
+# Vite Environment Files
+# --------------------------------------------------
+
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+
+# --------------------------------------------------
+# Logs
+# --------------------------------------------------
+
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+
+# --------------------------------------------------
+# macOS Files
+# --------------------------------------------------
+
+.DS_Store
+.AppleDouble
+.LSOverride
+
+
+# --------------------------------------------------
+# IDE and Editor Files
+# --------------------------------------------------
+
 .vscode/
 .idea/
+
+*.swp
+*.swo
+*~
+
+
+# --------------------------------------------------
+# Temporary Files
+# --------------------------------------------------
+
+*.tmp
+*.temp
+.cache/
