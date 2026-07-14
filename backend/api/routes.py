@@ -5,6 +5,7 @@ from services.via_service import get_placeholder_route
 from services.gemini_service import generate_ai_explanation
 from services.maps_service import get_map_placeholder
 
+
 router = APIRouter()
 
 
@@ -12,7 +13,9 @@ router = APIRouter()
 def home():
     return {
         "status": "success",
-        "message": "AI Bus Travel Assistant Backend is running!"
+        "message": (
+            "AI Bus Travel Assistant Backend is running!"
+        ),
     }
 
 
@@ -20,18 +23,18 @@ def home():
 def find_route(request: RouteRequest):
     route_info = get_placeholder_route(
         request.start,
-        request.destination
+        request.destination,
     )
 
     ai_explanation = generate_ai_explanation(
         request.start,
         request.destination,
-        route_info
+        route_info,
     )
 
     map_info = get_map_placeholder(
         request.start,
-        request.destination
+        request.destination,
     )
 
     return {
@@ -40,5 +43,5 @@ def find_route(request: RouteRequest):
         "destination": request.destination,
         "route": route_info,
         "ai_explanation": ai_explanation,
-        "map": map_info
+        "map": map_info,
     }
