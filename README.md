@@ -320,4 +320,4 @@ Bachelor of Arts and Science in Computer Science
 
 # License
 
-This project was developed as part of a university software engineering course at Texas A&M University–San Antonio.
+This project was developed as part of a university AI course at Texas A&M University–San Antonio.
