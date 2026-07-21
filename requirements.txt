@@ -1,0 +1,5 @@
+google-genai
+pandas
+python-dotenv
+requests==2.34.2
+streamlit==1.59.2
