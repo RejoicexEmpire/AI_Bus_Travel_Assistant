@@ -38,7 +38,7 @@ def display_value(value, fallback="Unavailable"):
     return value_text
 
 
-st.title("🚌 AI Bus Travel Assistant")
+st.title("AI Bus Travel Assistant")
 
 st.write(
     "Enter a starting location and destination to receive a "
