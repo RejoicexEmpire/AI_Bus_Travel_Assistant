@@ -783,6 +783,7 @@ def find_one_transfer_route(
                             ]
                         )
                     )
+
                 except (
                     ValueError,
                     TypeError,
@@ -813,7 +814,6 @@ def find_one_transfer_route(
 
                 score = (
                     total_duration_seconds
-                    + transfer_wait_seconds
                     + round(total_walk_distance * 1800)
                 )
 
@@ -826,9 +826,7 @@ def find_one_transfer_route(
                     best_match = {
                         "first_trip": first_trip,
                         "second_trip": second_trip,
-                        "transfer_stop_id": (
-                            transfer_stop_id
-                        ),
+                        "transfer_stop_id": transfer_stop_id,
                         "transfer_arrival_time": str(
                             first_transfer_stop[
                                 "arrival_time"
@@ -1142,15 +1140,12 @@ def build_transfer_route_response(
     }
 
 
-def get_placeholder_route(
+def find_via_route(
     start: str,
     destination: str,
 ) -> dict:
     """
-    Calculate a real direct or one-transfer VIA route.
-
-    The original function name remains unchanged so routes.py does
-    not need to be modified.
+    Calculate a direct or one-transfer VIA route using local GTFS data.
     """
 
     try:
@@ -1184,11 +1179,9 @@ def get_placeholder_route(
                 destination_location,
             )
 
-        selected_transfer_route = (
-            find_one_transfer_route(
-                start_stops,
-                destination_stops,
-            )
+        selected_transfer_route = find_one_transfer_route(
+            start_stops,
+            destination_stops,
         )
 
         if selected_transfer_route is not None:

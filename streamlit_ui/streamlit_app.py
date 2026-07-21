@@ -4,6 +4,7 @@ from pathlib import Path
 import streamlit as st
 
 
+# Add the backend directory to Python's import path.
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 BACKEND_FOLDER = PROJECT_ROOT / "backend"
 
@@ -12,8 +13,7 @@ if str(BACKEND_FOLDER) not in sys.path:
 
 
 from services.gemini_service import generate_ai_explanation
-from services.maps_service import get_map_placeholder
-from services.via_service import get_placeholder_route
+from services.via_service import find_via_route
 
 
 st.set_page_config(
@@ -22,9 +22,15 @@ st.set_page_config(
 )
 
 
-def display_value(value, fallback="Unavailable"):
+def display_value(
+    value,
+    fallback: str = "Unavailable",
+) -> str:
     """
-    Return a readable value for missing route fields.
+    Return a readable string for a route value.
+
+    Missing, empty, or whitespace-only values are replaced with the
+    supplied fallback text.
     """
 
     if value is None:
@@ -45,18 +51,21 @@ st.write(
     "VIA bus route recommendation based on local GTFS schedule data."
 )
 
+st.caption(
+    "This prototype uses downloaded VIA schedule data and does not "
+    "provide live bus locations or real-time arrival predictions."
+)
+
 
 with st.form("route_form"):
     start = st.text_input(
         "Starting location",
-        placeholder=(
-            "Example: San Antonio International Airport"
-        ),
+        placeholder="Example: Downtown San Antonio",
     )
 
     destination = st.text_input(
         "Destination",
-        placeholder="Example: The Alamo",
+        placeholder="Example: San Antonio International Airport",
     )
 
     submit_button = st.form_submit_button(
@@ -85,20 +94,20 @@ if submit_button:
             with st.spinner(
                 "Searching VIA schedule data and generating guidance..."
             ):
-                route_info = get_placeholder_route(
+                route_info = find_via_route(
                     cleaned_start,
                     cleaned_destination,
                 )
+
+                if not isinstance(route_info, dict):
+                    raise ValueError(
+                        "The routing service returned an invalid response."
+                    )
 
                 ai_explanation = generate_ai_explanation(
                     cleaned_start,
                     cleaned_destination,
                     route_info,
-                )
-
-                map_info = get_map_placeholder(
-                    cleaned_start,
-                    cleaned_destination,
                 )
 
             route_title = display_value(
@@ -149,9 +158,7 @@ if submit_button:
                 )
 
             st.write(f"**Transfer:** {transfer}")
-            st.write(
-                f"**Estimated Time:** {estimated_time}"
-            )
+            st.write(f"**Estimated Time:** {estimated_time}")
             st.write(f"**Fare:** {fare}")
 
             departure_time = display_value(
@@ -164,12 +171,21 @@ if submit_button:
 
             if departure_time != "Unavailable":
                 st.write(
-                    f"**Scheduled Departure:** {departure_time}"
+                    f"**GTFS Scheduled Departure:** {departure_time}"
                 )
 
             if arrival_time != "Unavailable":
                 st.write(
-                    f"**Scheduled Arrival:** {arrival_time}"
+                    f"**GTFS Scheduled Arrival:** {arrival_time}"
+                )
+
+            if (
+                departure_time != "Unavailable"
+                or arrival_time != "Unavailable"
+            ):
+                st.caption(
+                    "Schedule times come from the downloaded VIA GTFS "
+                    "dataset and are not live arrival predictions."
                 )
 
             transfer_wait = display_value(
@@ -201,53 +217,49 @@ if submit_button:
                 with st.expander("Stop Information"):
                     if starting_stop:
                         st.write("**Starting VIA stop**")
+
                         st.write(
-                            starting_stop.get(
-                                "stop_name",
-                                "Unavailable",
+                            display_value(
+                                starting_stop.get("stop_name")
                             )
                         )
+
+                        start_distance = display_value(
+                            starting_stop.get(
+                                "distance_miles"
+                            )
+                        )
+
                         st.write(
-                            "Walking distance: "
-                            f"{display_value(
-                                starting_stop.get(
-                                    'distance_miles'
-                                )
-                            )} miles"
+                            f"Walking distance: "
+                            f"{start_distance} miles"
                         )
 
                     if destination_stop:
                         st.write("**Destination VIA stop**")
+
                         st.write(
-                            destination_stop.get(
-                                "stop_name",
-                                "Unavailable",
+                            display_value(
+                                destination_stop.get("stop_name")
                             )
                         )
-                        st.write(
-                            "Walking distance: "
-                            f"{display_value(
-                                destination_stop.get(
-                                    'distance_miles'
-                                )
-                            )} miles"
+
+                        destination_distance = display_value(
+                            destination_stop.get(
+                                "distance_miles"
+                            )
                         )
 
-            if map_info:
-                with st.expander("Map Information"):
-                    if isinstance(map_info, dict):
-                        st.json(map_info)
-                    else:
-                        st.write(map_info)
+                        st.write(
+                            f"Walking distance: "
+                            f"{destination_distance} miles"
+                        )
 
-            with st.expander("Raw Route Data"):
+            with st.expander("Technical Route Details"):
                 st.json(route_info)
 
-        except Exception as error:
+        except Exception:
             st.error(
-                "An unexpected error occurred while planning "
-                "the trip."
+                "An unexpected error occurred while planning the trip. "
+                "Please check your connection and try again."
             )
-
-            with st.expander("Technical Error Details"):
-                st.code(str(error))

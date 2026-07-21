@@ -22,9 +22,14 @@ def generate_ai_explanation(
     route_info: dict,
 ) -> str:
     """
-    Ask Gemini to explain the returned VIA route without inventing
-    additional transit information.
+    Explain a computed VIA route using only the supplied route data.
     """
+
+    if not isinstance(route_info, dict):
+        return (
+            "AI explanation is unavailable because valid route "
+            "information was not provided."
+        )
 
     route_name = (
         route_info.get("route")
@@ -64,9 +69,9 @@ def generate_ai_explanation(
         or "Unavailable"
     )
 
-    fare = route_info.get(
-        "fare",
-        "Unavailable",
+    fare = (
+        route_info.get("fare")
+        or "Unavailable"
     )
 
     instructions = (
@@ -117,6 +122,7 @@ Rules:
 - Only use the transit information provided above.
 - Do not invent route numbers, stops, times, transfers, or fares.
 - If the route result says no route was found, clearly explain that.
+- Describe all times as scheduled times, not live arrival predictions.
 - Keep the explanation concise.
 - Use plain text without Markdown symbols such as asterisks.
 """
